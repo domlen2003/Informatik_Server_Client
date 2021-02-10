@@ -19,11 +19,11 @@ package prefabs;
  * Das aktuelle Objekt kann gelesen, veraendert oder geloescht werden. Ausserdem
  * kann vor dem aktuellen Objekt ein Listenobjekt eingefuegt werden.
  * </p>
- * 
+ *
  * @author Klaus Bovermann
  * @author Volker Quade
  * @author Martin Weise (Anpassungen Dokumentation, Umbenennung getObject() ->
- *         getContent(), setObject(...) -> setContent(...)
+ * getContent(), setObject(...) -> setContent(...)
  * @version Generisch_03 2014-03-01
  */
 public class List<ContentType> {
@@ -38,7 +38,7 @@ public class List<ContentType> {
 
 		/**
 		 * Ein neues Objekt wird erschaffen. Der Verweis ist leer.
-		 * 
+		 *
 		 * @param pContent
 		 */
 		private ListNode(ContentType pContent) {
@@ -48,7 +48,7 @@ public class List<ContentType> {
 
 		/**
 		 * Der Inhalt des Knotens wird zurueckgeliefert
-		 * 
+		 *
 		 * @return das Inhaltsobjekt
 		 */
 		private ContentType getContentObject() {
@@ -57,7 +57,7 @@ public class List<ContentType> {
 
 		/**
 		 * Der Inhalt dieses Kontens wird gesetzt.
-		 * 
+		 *
 		 * @param pContent
 		 */
 		private void setContentObject(ContentType pContent) {
@@ -66,7 +66,7 @@ public class List<ContentType> {
 
 		/**
 		 * Der Nachfolgeknoten wird zurueckgeliefert
-		 * 
+		 *
 		 * @return das Objekt, auf das der aktuelle Verweis zeigt.
 		 */
 		private ListNode getNextNode() {
@@ -76,7 +76,7 @@ public class List<ContentType> {
 		/**
 		 * Der Verweis wird auf das Objekt, das als Parameter uebergeben
 		 * wird, gesetzt.
-		 * 
+		 *
 		 * @param pNext
 		 */
 		private void setNextNode(ListNode pNext) {
@@ -108,23 +108,23 @@ public class List<ContentType> {
 	/**
 	 * Die Anfrage liefert den Wert true, wenn die Liste keine Objekte enthaelt,
 	 * sonst liefert sie den Wert false.
-	 * 
+	 *
 	 * @return true, wenn die Liste leer ist, sonst false
 	 */
 	public boolean isEmpty() {
 		return first == null; // Die List ist leer, wenn es kein erstes Element
-								// gibt.
+		// gibt.
 	}
 
 	/**
 	 * Die Anfrage liefert den Wert true, wenn es ein aktuelles Objekt gibt,
 	 * sonst liefert sie den Wert false.
-	 * 
+	 *
 	 * @return true, falls Zugriff moeglich, sonst false
 	 */
 	public boolean hasAccess() {
 		return current != null; // Es gibt keinen Zugriff, wenn current auf kein
-								// Element verweist.
+		// Element verweist.
 	}
 
 	/**
@@ -163,9 +163,9 @@ public class List<ContentType> {
 	 * Falls es ein aktuelles Objekt gibt (hasAccess() == true), wird das
 	 * aktuelle Objekt zurueckgegeben, andernfalls (hasAccess()== false) gibt
 	 * die Anfrage den Wert null zurueck.
-	 * 
+	 *
 	 * @return das aktuelle Objekt (vom Typ ContentType) oder null, wenn es
-	 *         kein aktuelles Objekt gibt
+	 * kein aktuelles Objekt gibt
 	 */
 	public ContentType getContent() {
 		if (this.hasAccess())
@@ -178,14 +178,13 @@ public class List<ContentType> {
 	 * Falls es ein aktuelles Objekt gibt (hasAccess() == true) und pContent
 	 * ungleich null ist, wird das aktuelle Objekt durch pContent ersetzt. Sonst
 	 * geschieht nichts.
-	 * 
-	 * @param pContent
-	 *            Das zu schreibende Objekt vom Typ ContentType
+	 *
+	 * @param pContent Das zu schreibende Objekt vom Typ ContentType
 	 */
 	public void setContent(ContentType pContent) {
 		if (pContent != null && this.hasAccess()) // Nichts tun, wenn es keinen
-													// Inhalt oder kein
-													// aktuelles Element gibt.
+			// Inhalt oder kein
+			// aktuelles Element gibt.
 			current.setContentObject(pContent);
 	}
 
@@ -197,21 +196,21 @@ public class List<ContentType> {
 	 * gibt weiterhin kein aktuelles Objekt (hasAccess() == false). <br />
 	 * Falls es kein aktuelles Objekt gibt (hasAccess() == false) und die Liste
 	 * nicht leer ist oder pContent gleich null ist, geschieht nichts.
-	 * 
-	 * @param pContent
-	 *            Das einzufuegende Objekt vom Typ ContentType
+	 *
+	 * @param pContent Das einzufuegende Objekt vom Typ ContentType
 	 */
 	public void insert(ContentType pContent) {
 		if (pContent != null) { // Nichts tun, wenn es keine Inhalt gibt.
 			if (this.hasAccess()) {// Fall: Es gibt ein aktuelles Element.
 				ListNode newNode = new ListNode(pContent); // Neuen Knoten
-															// erstellen.
+				// erstellen.
 				if (current != first) { // Fall: Nicht an erste Stelle
-										// einfuegen.
+					// einfuegen.
 					ListNode previous = this.getPrevious(current);
 					if (previous == null) {
 						System.out.println("PREV == NULL!!!!!");
 					}
+					assert previous != null;
 					newNode.setNextNode(previous.getNextNode());
 					previous.setNextNode(newNode);
 				} else { // Fall: An erster Stelle einfuegen.
@@ -221,7 +220,7 @@ public class List<ContentType> {
 			} else {
 				if (this.isEmpty()) { // Fall: In leere Liste einfuegen.
 					ListNode newNode = new ListNode(pContent); // Neuen Knoten
-																// erstellen.
+					// erstellen.
 					first = newNode;
 					last = newNode;
 				}
@@ -235,9 +234,8 @@ public class List<ContentType> {
 	 * Das aktuelle Objekt bleibt unveraendert. <br />
 	 * Wenn die Liste leer ist, wird das Objekt pContent in die Liste eingefuegt
 	 * und es gibt weiterhin kein aktuelles Objekt (hasAccess() == false).
-	 * 
-	 * @param pContent
-	 *            Das anzuhaengende Objekt vom Typ ContentType
+	 *
+	 * @param pContent Das anzuhaengende Objekt vom Typ ContentType
 	 */
 	public void append(ContentType pContent) {
 		if (pContent != null) { // Nichts tun, wenn es keine Inhalt gibt.
@@ -245,7 +243,7 @@ public class List<ContentType> {
 				this.insert(pContent);
 			} else { // Fall: An nicht-leere Liste anfuegen.
 				ListNode newNode = new ListNode(pContent); // Neuen Knoten
-															// erstellen.
+				// erstellen.
 				last.setNextNode(newNode);
 				last = newNode; // Letzten Knoten aktualisieren.
 			}
@@ -257,20 +255,18 @@ public class List<ContentType> {
 	 * Ansonsten wird die Liste pList an die aktuelle Liste angehaengt.
 	 * Anschliessend wird pList eine leere Liste. Das aktuelle Objekt bleibt
 	 * unveraendert. Insbesondere bleibt hasAccess identisch.
-	 * 
-	 * @param pList
-	 *            die am Ende anzuhaengende Liste vom Typ List<ContentType>
+	 *
+	 * @param pList die am Ende anzuhaengende Liste vom Typ List<ContentType>
 	 */
 	public void concat(List<ContentType> pList) {
 		if (pList != null && !pList.isEmpty()) { // Nichts tun, wenn pList leer
-													// oder nicht existent.
+			// oder nicht existent.
 			if (this.isEmpty()) { // Fall: An leere Liste anfuegen.
 				this.first = pList.first;
-				this.last = pList.last;
 			} else { // Fall: An nicht-leere Liste anfuegen
 				this.last.setNextNode(pList.first);
-				this.last = pList.last;
 			}
+			this.last = pList.last;
 			// Liste pList loeschen.
 			pList.first = null;
 			pList.last = null;
@@ -289,8 +285,8 @@ public class List<ContentType> {
 	 */
 	public void remove() {
 		if (this.hasAccess() && !this.isEmpty()) { // Nichts tun, wenn es kein
-													// aktuelle Element gibt
-													// oder die Liste leer ist.
+			// aktuelle Element gibt
+			// oder die Liste leer ist.
 			if (current == first) {
 				first = first.getNextNode();
 			} else {
@@ -316,11 +312,10 @@ public class List<ContentType> {
 	 * == null, pNode nicht in der Liste oder pNode der erste Knoten der Liste,
 	 * wird null zurueckgegeben.
 	 *
-	 * @param pNode
-	 *            der Knoten, dessen VorgÃ¤nger zurueckgegeben werden soll
+	 * @param pNode der Knoten, dessen VorgÃ¤nger zurueckgegeben werden soll
 	 * @return Der Vorgaenger des Knotens pNode oder null, falls Liste leer,
-	 *         pNode==null, pNode nicht in der Liste oder pNode des erste Knoten
-	 *         der Liste
+	 * pNode==null, pNode nicht in der Liste oder pNode des erste Knoten
+	 * der Liste
 	 */
 	private ListNode getPrevious(ListNode pNode) {
 		if (pNode != null && pNode != first && !this.isEmpty()) {
@@ -332,15 +327,15 @@ public class List<ContentType> {
 			return null;
 		}
 	}
-	
-	public String toString () {
+
+	public String toString() {
 		this.toFirst();
-		String result = "";
+		StringBuilder result = new StringBuilder();
 		while (this.hasAccess()) {
 			ContentType dieses = this.getContent();
-			result += dieses.toString() + "/";
+			result.append(dieses.toString()).append("/");
 			this.next();
 		}
-		return result;
+		return result.toString();
 	}
 }
