@@ -1,43 +1,36 @@
 import client.ShopClient
-import javafx.scene.control.TextField
-import javafx.scene.layout.VBox
-import javafx.scene.paint.Color
+import ui.controller.UIController
+import javafx.stage.Stage
 import server.ShopServer
-import tornadofx.*
+import tornadofx.App
+import tornadofx.launch
+import ui.views.MainView
+import ui.views.MyStyle
 
 fun main(args: Array<String>) {
-    launch<Launcher>(args)
+    launch<Launcher>()
 }
 
-class Launcher : App(MyView::class) {
-    init {
-        ShopServer(port = 420)
-        val client = ShopClient(port = 420, addr = "")
-        client.send("ping")
-    }
-}
-
-class MyView : View() {
-    var firstNameField: TextField by singleAssign()
-    var lastNameField: TextField by singleAssign()
-    override val root = VBox()
-
-    init {
-        with(root) {
-            hbox {
-                label("First Name")
-                firstNameField = textfield()
-            }
-            hbox {
-                label("Last Name")
-                lastNameField = textfield()
-            }
-            button("LOGIN") {
-                useMaxWidth = true
-                action {
-                    println("Logging in as ${firstNameField.text} ${lastNameField.text}")
-                }
-            }
+class Launcher : App(MainView::class, MyStyle::class) {
+    val controller = UIController()
+    val server = ShopServer(port = 420)
+    val client = ShopClient(port = 420, addr = "")
+    override fun start(stage: Stage) {
+        with(stage) {
+            width = 600.0
+            height = 600.0
         }
+        super.start(stage)
+    }
+
+    init {
+        instance = this
+    }
+
+    companion object {
+        var instance: Launcher? = null
     }
 }
+
+
+
