@@ -1,7 +1,6 @@
 package prefabs;
 
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 
 
 /**
@@ -22,18 +21,20 @@ public abstract class Server {
 	// Objekte
 	private ServerSocket serverSocket;
 	private List<ServerConnection> verbindungen;
+	private ServerSchleife schleife;
+
+	// Attribute
+	private int zPort;
 
 	/**
-	 * Verbindung des Servers mit einem Client.<br>
-	 * Kann nebenlaeufig die empfangenen Nachrichten bearbeiten.
-	 *
-	 * @author Horst Hildebrecht
-	 * @version 1.0
+	 Verbindung des Servers mit einem Client.<br>
+	 Kann nebenlaeufig die empfangenen Nachrichten bearbeiten.
+	 @author Horst Hildebrecht
+	 @version 1.0
 	 */
-	private static class ServerConnection extends Connection {
+	private class ServerConnection extends Connection  {
 		// Objekte
 		Server server;
-
 		//Connection sConnection;
     /*
     Die ServerVerbindung wurde inialisiert.
@@ -46,28 +47,32 @@ public abstract class Server {
 		}
 
 		/**
-		 * Solange der Client Nachrichten sendete, wurden diese empfangen und an die Server weitergereicht.<br>
-		 * Abgebrochene Verbindungen wurden erkannt.
+		 Solange der Client Nachrichten sendete, wurden diese empfangen und an die Server weitergereicht.<br>
+		 Abgebrochene Verbindungen wurden erkannt.
 		 */
 		public void run() {
 			String lNachricht;
 
-			while (!this.isClosed()) {
+			while (!this.isClosed())
+			{
 				lNachricht = this.receive();
-				if (lNachricht == null) {
-					if (!this.isClosed()) {
+				if (lNachricht == null)
+				{
+					if (!this.isClosed())
+					{
 						server.closeConnection(this.getRemoteIP(), this.getRemotePort());
 					}
-				} else
+				}
+				else
 					server.processMessage(this.getRemoteIP(), this.getRemotePort(), lNachricht);
 			}
 		}
 
 	}
 
-	private static class ServerSchleife extends Thread {
+	private class ServerSchleife extends Thread {
 
-		private final Server server;
+		private Server server;
 
 		public ServerSchleife(Server pServer) {
 			server = pServer;
@@ -83,7 +88,9 @@ public abstract class Server {
 					// auf den Server zugreifen koennen.
 					server.ergaenzeVerbindung(lNeueSerververbindung);
 					lNeueSerververbindung.start();
-				} catch (Exception pFehler) {
+				}
+
+				catch (Exception pFehler) {
 					System.err.println("Fehler beim Erwarten einer Verbindung in Server: " + pFehler);
 				}
 			}
@@ -91,19 +98,20 @@ public abstract class Server {
 	}
 
 	/**
-	 * Der Server ist initialisiert.
-	 *
-	 * @param pPortNr Portnummer des Sockets
+	 Der Server ist initialisiert.
+	 @param pPortNr Portnummer des Sockets
 	 */
 	public Server(int pPortNr) {
 		try {
 			//Socket oeffnen
 			serverSocket = new ServerSocket(pPortNr);
-			// Attribute
-			verbindungen = new List<>();
-			ServerSchleife schleife = new ServerSchleife(this);
+			zPort = pPortNr;
+			verbindungen = new List<ServerConnection>();
+			schleife = new ServerSchleife(this);
 			schleife.start();
-		} catch (Exception pFehler) {
+		}
+
+		catch (Exception pFehler) {
 			System.err.println("Fehler : " + pFehler);
 		}
 	}
@@ -118,10 +126,9 @@ public abstract class Server {
 	}
 
 	/**
-	 * Liefert die Serververbindung der angegebenen IP mit dem angegebenen Port, null falls nicht vorhanden.
-	 *
-	 * @param pClientIP   IP-Nummer des Clients der gesuchten Verbindung
-	 * @param pClientPort Port-Nummer des Clients der gesuchten Verbindung
+	 Liefert die Serververbindung der angegebenen IP mit dem angegebenen Port, null falls nicht vorhanden.
+	 @param pClientIP IP-Nummer des Clients der gesuchten Verbindung
+	 @param pClientPort Port-Nummer des Clients der gesuchten Verbindung
 	 */
 	private ServerConnection SerververbindungVonIPUndPort(String pClientIP, int pClientPort) {
 		ServerConnection lSerververbindung;
@@ -129,7 +136,7 @@ public abstract class Server {
 		verbindungen.toFirst();
 
 		while (verbindungen.hasAccess()) {
-			lSerververbindung = verbindungen.getContent();
+			lSerververbindung = (ServerConnection) verbindungen.getContent();
 			if (lSerververbindung.getRemoteIP().equals(pClientIP) && lSerververbindung.getRemotePort() == pClientPort)
 				return lSerververbindung;
 			verbindungen.next();
@@ -139,11 +146,10 @@ public abstract class Server {
 	}
 
 	/**
-	 * Eine Nachricht wurde an einen Client geschickt.
-	 *
-	 * @param pClientIP   IP-Nummer des Empfaengers
-	 * @param pClientPort Port-Nummer des Empfaengers
-	 * @param pMessage    die verschickte Nachricht
+	 Eine Nachricht wurde an einen Client geschickt.
+	 @param pClientIP IP-Nummer des Empfaengers
+	 @param pClientPort Port-Nummer des Empfaengers
+	 @param pMessage die verschickte Nachricht
 	 */
 	public void send(String pClientIP, int pClientPort, String pMessage) {
 		ServerConnection lSerververbindung = this.SerververbindungVonIPUndPort(pClientIP, pClientPort);
@@ -154,47 +160,45 @@ public abstract class Server {
 	}
 
 	/**
-	 * Eine Nachricht wurde an alle verbundenen Clients geschickt.
-	 *
-	 * @param pMessage die verschickte Nachricht
+	 Eine Nachricht wurde an alle verbundenen Clients geschickt.
+	 @param pMessage die verschickte Nachricht
 	 */
 	public void sendToAll(String pMessage) {
 		ServerConnection lSerververbindung;
 		verbindungen.toFirst();
 		while (verbindungen.hasAccess()) {
-			lSerververbindung = verbindungen.getContent();
+			lSerververbindung = (ServerConnection) verbindungen.getContent();
 			lSerververbindung.send(pMessage);
 			verbindungen.next();
 		}
 	}
 
 	/**
-	 * Die Verbindung mit der angegebenen IP und dem angegebenen Port wurde geschlossen.<br>
-	 *
-	 * @param pClientIP   IP-Nummer des Clients der zu beendenden Verbindung
-	 * @param pClientPort Port-Nummer des Clients der zu beendenden Verbindung
+	 Die Verbindung mit der angegebenen IP und dem angegebenen Port wurde geschlossen.<br>
+	 @param pClientIP IP-Nummer des Clients der zu beendenden Verbindung
+	 @param pClientPort Port-Nummer des Clients der zu beendenden Verbindung
 	 */
-	public void closeConnection(String pClientIP, int pClientPort) {
+	public void closeConnection (String pClientIP, int pClientPort) {
 		ServerConnection lSerververbindung = this.SerververbindungVonIPUndPort(pClientIP, pClientPort);
 		if (lSerververbindung != null) {
 			this.processClosedConnection(pClientIP, pClientPort);
 			lSerververbindung.close();
 			this.loescheVerbindung(lSerververbindung);
 
-		} else
+		}
+		else
 			System.err.println("Fehler beim Schliessen der Verbindung: IP " + pClientIP + " mit Port " + pClientPort + " nicht vorhanden.");
 
 	}
 
 	/**
-	 * Eine Verbindung wurde aus der Empfaengerliste geloescht.
-	 *
-	 * @param pVerbindung die zu loeschende Verbindung
+	 Eine Verbindung wurde aus der Empfaengerliste geloescht.
+	 @param pVerbindung die zu loeschende Verbindung
 	 */
 	private void loescheVerbindung(ServerConnection pVerbindung) {
 		verbindungen.toFirst();
 		while (verbindungen.hasAccess()) {
-			ServerConnection lClient = verbindungen.getContent();
+			ServerConnection lClient = (ServerConnection) verbindungen.getContent();
 			if (lClient == pVerbindung)
 				verbindungen.remove();
 			verbindungen.next();
@@ -202,45 +206,43 @@ public abstract class Server {
 	}
 
 	/**
-	 * Ein neuer Client hat sich angemeldet.<br>
-	 * Diese leere Methode kann in einer Unterklasse realisiert werden (Begr&uuml;&szlig;ung).
-	 *
-	 * @param pClientIP   IP-Nummer des Clients, der neu angemeldet ist
-	 * @param pClientPort Port-Nummer des Clients, der neu angemeldet ist
+	 Ein neuer Client hat sich angemeldet.<br>
+	 Diese leere Methode kann in einer Unterklasse realisiert werden (Begr&uuml;&szlig;ung).
+	 @param pClientIP IP-Nummer des Clients, der neu angemeldet ist
+	 @param pClientPort Port-Nummer des Clients, der neu angemeldet ist
 	 */
-	public void processNewConnection(String pClientIP, int pClientPort) {
-	}
+	public void processNewConnection(String pClientIP, int pClientPort)
+	{}
 
 	/**
-	 * Eine Nachricht von einem Client wurde bearbeitet.<br>
-	 * Diese leere Methode sollte in Unterklassen &uuml;berschrieben werden.
-	 *
-	 * @param pClientIP   IP-Nummer des Clients, der die Nachricht geschickt hat
-	 * @param pClientPort Port-Nummer des Clients, der die Nachricht geschickt hat
-	 * @param pMessage    Die empfangene Nachricht, die bearbeitet werden soll
+	 Eine Nachricht von einem Client wurde bearbeitet.<br>
+	 Diese leere Methode sollte in Unterklassen &uuml;berschrieben werden.
+	 @param pClientIP IP-Nummer des Clients, der die Nachricht geschickt hat
+	 @param pClientPort Port-Nummer des Clients, der die Nachricht geschickt hat
+	 @param pMessage Die empfangene Nachricht, die bearbeitet werden soll
 	 */
 
-	public void processMessage(String pClientIP, int pClientPort, String pMessage) {
-	}
+	public void processMessage(String pClientIP, int pClientPort, String pMessage)
+	{}
 
 	/**
-	 * Die Verbindung mit einem Client wurde beendet oder verloren.<br>
-	 * Diese leere Methode kann in einer Unterklasse realisiert werden.
-	 *
-	 * @param pClientIP   IP-Nummer des Clients, mit dem die Verbindung beendet wurde
-	 * @param pClientPort Port-Nummer des Clients, mit dem die Verbindung beendet wurde
+	 Die Verbindung mit einem Client wurde beendet oder verloren.<br>
+	 Diese leere Methode kann in einer Unterklasse realisiert werden.
+	 @param pClientIP IP-Nummer des Clients, mit dem die Verbindung beendet wurde
+	 @param pClientPort Port-Nummer des Clients, mit dem die Verbindung beendet wurde
 	 */
-	public void processClosedConnection(String pClientIP, int pClientPort) {
-	}
+	public void processClosedConnection(String pClientIP, int pClientPort)
+	{}
 
 	/**
-	 * Der Server wurde geschlossen.
+	 Der Server wurde geschlossen.
 	 */
 	public void close() {
 		try {
-			serverSocket.close();
-			serverSocket = null;
-		} catch (Exception pFehler) {
+			serverSocket.close(); serverSocket = null;
+		}
+
+		catch (Exception pFehler) {
 			System.err.println("Fehler beim Schliessen des Servers: " + pFehler);
 		}
 

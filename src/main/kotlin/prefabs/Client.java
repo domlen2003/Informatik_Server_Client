@@ -1,5 +1,4 @@
 package prefabs;
-
 /**
  * <p>Materialien zu den zentralen
  * Abiturpruefungen im Fach Informatik ab 2012 in
@@ -13,19 +12,19 @@ package prefabs;
  *
  * @version 2010-10-24
  */
-public abstract class Client {
+public abstract class Client
+{
 
 	//Objektbeziehungen
 	private Connection hatVerbindung;
 	private Clientempfaenger hatEmpfaenger;
 
 	/**
-	 * Hilfsklasse fuer den Client, die in einem eigenen Thread den Empfang einer Nachricht vom Server realisiert.
-	 *
-	 * @author Horst Hildebrecht
-	 * @version 1.0 vom 15.06.2006
+	 Hilfsklasse fuer den Client, die in einem eigenen Thread den Empfang einer Nachricht vom Server realisiert.
+	 @author Horst Hildebrecht
+	 @version 1.0 vom 15.06.2006
 	 */
-	static class Clientempfaenger extends Thread {
+	class Clientempfaenger extends Thread {
 		// Objekte
 		private Client kenntClient;
 		private Connection kenntVerbindung;
@@ -34,10 +33,9 @@ public abstract class Client {
 		private boolean zVerbindungAktiv;
 
 		/**
-		 * Der ClientEmpfaenger hat den zugeh&ouml;rigen Client und die zugeh&ouml;rige Connection kennen gelernt.<br>
-		 *
-		 * @param pClient     zugeh&ouml;riger Client, der die einkommenden Nachrichten bearbeitet
-		 * @param pConnection zugeh&ouml;rige Connection, die die einkommenden Nachrichten empfŠngt
+		 Der ClientEmpfaenger hat den zugeh&ouml;rigen Client und die zugeh&ouml;rige Connection kennen gelernt.<br>
+		 @param pClient zugeh&ouml;riger Client, der die einkommenden Nachrichten bearbeitet
+		 @param pConnection zugeh&ouml;rige Connection, die die einkommenden Nachrichten empfŠngt
 		 */
 		public Clientempfaenger(Client pClient, Connection pConnection) {
 			kenntClient = pClient;
@@ -46,14 +44,15 @@ public abstract class Client {
 		}
 
 		/**
-		 * Solange der Server Nachrichten sendete, wurden diese empfangen und an die ClientVerbinedung weitergereicht.
+		 Solange der Server Nachrichten sendete, wurden diese empfangen und an die ClientVerbinedung weitergereicht.
 		 */
 		public void run() {
 			String lNachricht;
 			boolean lNachrichtEmpfangen = true;
 
 			do
-				if (zVerbindungAktiv) {
+				if (zVerbindungAktiv)
+				{
 					lNachricht = kenntVerbindung.receive();
 					lNachrichtEmpfangen = (lNachricht != null);
 					if (lNachrichtEmpfangen)
@@ -63,7 +62,7 @@ public abstract class Client {
 		}
 
 		/**
-		 * Der ClientEmpfaenger arbeitet nicht mehr
+		 Der ClientEmpfaenger arbeitet nicht mehr
 		 */
 		public void gibFrei() {
 			zVerbindungAktiv = false;
@@ -72,18 +71,21 @@ public abstract class Client {
 	}
 
 	/**
-	 * Der Client ist mit Ein- und Ausgabestreams initialisiert.<br>
-	 *
-	 * @param pIPAdresse IP-Adresse bzw. Domain des Servers
-	 * @param pPortNr    Portnummer des Sockets
+	 Der Client ist mit Ein- und Ausgabestreams initialisiert.<br>
+	 @param pIPAdresse IP-Adresse bzw. Domain des Servers
+	 @param pPortNr Portnummer des Sockets
 	 */
 	public Client(String pIPAdresse, int pPortNr) {
 		hatVerbindung = new Connection(pIPAdresse, pPortNr);
 
-		try {
+		try
+		{
 			hatEmpfaenger = new Clientempfaenger(this, hatVerbindung);
 			hatEmpfaenger.start();
-		} catch (Exception pFehler) {
+		}
+
+		catch (Exception pFehler)
+		{
 			System.err.println("Fehler beim \u00D6ffnen des Clients: " + pFehler);
 		}
 
@@ -105,15 +107,14 @@ public abstract class Client {
 	}
 
 	/**
-	 * Eine Nachricht vom Server wurde bearbeitet.<br>
-	 * Diese abstrakte Methode muss in Unterklassen ueberschrieben werden.
-	 *
-	 * @param pMessage die empfangene Nachricht, die bearbeitet werden soll
+	 Eine Nachricht vom Server wurde bearbeitet.<br>
+	 Diese abstrakte Methode muss in Unterklassen ueberschrieben werden.
+	 @param pMessage die empfangene Nachricht, die bearbeitet werden soll
 	 */
 	public abstract void processMessage(String pMessage);
 
 	/**
-	 * Die Verbindung wurde mit Ein- und Ausgabestreams geschlossen.
+	 Die Verbindung wurde mit Ein- und Ausgabestreams geschlossen.
 	 */
 	public void close() {
 		if (hatEmpfaenger != null)
