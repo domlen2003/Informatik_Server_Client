@@ -36,13 +36,13 @@ class ShopServer(port: Int) : Server(port) {
             }
             "tshirt" -> {
                 if (msg.args.size >= 2) {
-                    if (!msg.args[0]!!.toLowerCase().matches(Regex("(s|m|l|xl)"))) {
+                    if (!msg.args[0]!!.toLowerCase().matches(Regex("s|m|l|xl"))) {
                         this.send(
                             clientIp,
                             clientPort,
                             "Es sind nur die Größen S, M, L und Xl vorhanden."
                         )
-                    } else if (!msg.args[1]!!.toLowerCase().matches(Regex("(weiß|schwarz)"))) {
+                    } else if (!msg.args[1]!!.toLowerCase().matches(Regex("weiß|schwarz"))) {
                         this.send(
                             clientIp,
                             clientPort,
@@ -117,7 +117,6 @@ class ShopServer(port: Int) : Server(port) {
                 )
             }
         }
-        print(messageStack)
     }
 
     private fun getMessageStack(fullIp: String): ArrayList<String> {

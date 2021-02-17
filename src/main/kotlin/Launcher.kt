@@ -13,8 +13,8 @@ fun main(args: Array<String>) {
 
 class Launcher : App(MainView::class, MyStyle::class) {
     val controller = UIController()
-    val server = ShopServer(port = 420)
-    val client = ShopClient(port = 420, addr = "")
+    val server = ShopServer(port = 49160)
+    val client = ShopClient(port = 49160, addr = "")
     override fun start(stage: Stage) {
         with(stage) {
             width = 600.0
