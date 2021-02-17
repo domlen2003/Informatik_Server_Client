@@ -1,6 +1,8 @@
 package ui.views
 
 import Launcher
+import javafx.beans.property.SimpleStringProperty
+import javafx.collections.FXCollections
 import javafx.geometry.Pos
 import javafx.scene.control.TextField
 import javafx.scene.paint.Color
@@ -11,7 +13,25 @@ import utils.MessageHandler
 
 
 class MainView : View() {
-    var controller = Launcher.instance!!.controller
+    private var controller = Launcher.instance!!.controller
+
+    private val sizes = FXCollections.observableArrayList(
+        "S",
+        "M",
+        "L",
+        "XL"
+    )
+    private val selectedSize = SimpleStringProperty()
+    private val colors = FXCollections.observableArrayList(
+        "Schwarz",
+        "Weiß"
+    )
+    private val selectedColor = SimpleStringProperty()
+    private val answers = FXCollections.observableArrayList(
+        "Ja",
+        "Nein"
+    )
+    private val selectedAnswer = SimpleStringProperty()
 
     override val root = stackpane {
         borderpane {
@@ -42,18 +62,59 @@ class MainView : View() {
                                     sendToServer(MessageContainer("ping", listOf()))
                                 }
                             }
-                            button("Test2") {
+                            button {
                                 fitToParentSize()
                                 addClass(MyStyle.tackyButton)
+                                hbox {
+                                    alignment = Pos.CENTER
+                                    text("T-Shirt ")
+                                    combobox(selectedSize, sizes)
+                                    combobox(selectedColor, colors)
+                                }
                                 action {
-
+                                    if (selectedSize.value != null && selectedColor.value != null) {
+                                        sendToServer(
+                                            MessageContainer(
+                                                "tshirt",
+                                                listOf(selectedSize.value, selectedColor.value)
+                                            )
+                                        )
+                                    }
                                 }
                             }
-                            button("Test3") {
+                            button {
                                 fitToParentSize()
                                 addClass(MyStyle.tackyButton)
+                                hbox {
+                                    alignment = Pos.CENTER
+                                    text("Bestätigen ")
+                                    combobox(selectedAnswer, answers)
+                                }
                                 action {
-
+                                    if (selectedAnswer.value != null) {
+                                        sendToServer(
+                                            MessageContainer(
+                                                "bestätigung",
+                                                listOf(selectedAnswer.value)
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                            button {
+                                fitToParentSize()
+                                addClass(MyStyle.tackyButton)
+                                hbox {
+                                    alignment = Pos.CENTER
+                                    text("Abmelden")
+                                }
+                                action {
+                                    sendToServer(
+                                        MessageContainer(
+                                            "abmelden",
+                                            listOf()
+                                        )
+                                    )
                                 }
                             }
                         }
@@ -85,13 +146,13 @@ class MainView : View() {
         }
     }
 
-    fun sendToServer(message: MessageContainer) {
+    private fun sendToServer(message: MessageContainer) {
         Launcher.instance!!.client.send(
             MessageHandler.create(message)
         )
     }
 
-    fun sendToServer(message: String) {
+    private fun sendToServer(message: String) {
         Launcher.instance!!.client.send(
             message
         )
@@ -107,10 +168,12 @@ class MyStyle : Stylesheet() {
 
     init {
         tackyButton {
+            startMargin = 5.px
             endMargin = 5.px
-            maxHeight = 15.px
+            maxHeight = 40.px
+            prefHeight = maxHeight
             fontSize = 15.px
-            borderColor += box(Paint.valueOf("Green"))
+            borderColor += box(Paint.valueOf("Grey"))
             borderWidth += box(2.px)
             baseColor = Color.LIGHTGREY
         }
