@@ -5,7 +5,7 @@ import java.util.*
 class MessageHandler {
     companion object {
         fun parse(raw: String): MessageContainer {
-            val split = LinkedList(raw.split(" ").toList().dropWhile { it == " " || it == "" })
+            val split = LinkedList(raw.split(":").toList().dropWhile { it == " " || it == "" })
             val invoke = split[0]
             val args = LinkedList(split.toList().subList(1, split.size))
 
