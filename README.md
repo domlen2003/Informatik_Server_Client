@@ -1,8 +1,8 @@
 # Informatik_Server_Client
 
-Eine einfache Server Client Implementation in Kotlin.
-Basierend auf den abstrakten NRW_Abiturklassen Server und Client.
+A simple server-client implementation in Kotlin.
+Based on the abstakt NRW_Abiturclasses Server and Client.
 
-Ein GUI mit Tornadofx wurde für leichte Interaktion hinzugefügt.
+A GUI was added with TornadoFx for easy understandability.
 
-Der Code läuft in der normalen JRE.
+Since kotlin-code runs in the JVM the normal JRE can be used to execute the compiled program.
