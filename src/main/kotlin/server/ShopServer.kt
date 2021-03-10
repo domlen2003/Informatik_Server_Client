@@ -1,17 +1,27 @@
 package server
 
 
+import Launcher
 import prefabs.Server
-import utils.IpHandler
+import utils.Artikel
+import utils.Kunde
 import utils.MessageHandler
-import java.util.*
 
 class ShopServer(port: Int) : Server(port) {
 
-    private val clients: HashMap<String, ArrayList<String>> = HashMap()
+    private val lager = ArrayList<Artikel>(
+        listOf(
+            Artikel("Shirt", 19.99),
+            Artikel("Hose", 5.99),
+            Artikel("Hut", 2.99)
+        )
+    )
+
+    private val kunden = ArrayList<Kunde>()
 
     override fun processNewConnection(clientIp: String?, clientPort: Int) {
         super.processNewConnection(clientIp, clientPort)
+        kunden.add(Kunde(clientIp))
         this.send(
             clientIp,
             clientPort,
@@ -22,8 +32,6 @@ class ShopServer(port: Int) : Server(port) {
     override fun processMessage(clientIp: String?, clientPort: Int, message: String?) {
         if (message.isNullOrEmpty()) return
         val msg = MessageHandler.parse(message)
-        val fullIp = IpHandler.create(IpHandler.IpContainer(clientIp, clientPort))
-        val messageStack = getMessageStack(fullIp)
 
         when (msg.invoke.toLowerCase()) {
             "ping" -> {
@@ -32,7 +40,15 @@ class ShopServer(port: Int) : Server(port) {
                     clientPort,
                     "PONG"
                 )
-                messageStack.add(msg.invoke)
+            }
+            "lager" -> {
+                for (artikel in lager) {
+                    this.send(
+                        clientIp,
+                        clientPort,
+                        "${artikel.artikelName} zu ${artikel.artikelPreis} €"
+                    )
+                }
             }
             "tshirt" -> {
                 if (msg.args.size >= 2) {
@@ -49,12 +65,12 @@ class ShopServer(port: Int) : Server(port) {
                             "Es sind nur die Farben Weiß und Schwarz vorhanden."
                         )
                     } else {
+                        bestellungAufnehmen(clientIp, msg.args[0], msg.args[1])
                         this.send(
                             clientIp,
                             clientPort,
                             "Die Größe ist ${msg.args[0]}, die Farbe ist ${msg.args[1]} und es kostet 19,99 Euro. Bitte Bestätigen Sie die Bestellung."
                         )
-                        messageStack.add(msg.invoke)
                     }
                 } else {
                     this.send(
@@ -65,13 +81,7 @@ class ShopServer(port: Int) : Server(port) {
                 }
             }
             "bestätigung" -> {
-                if (!messageStack.contains("tshirt")) {
-                    this.send(
-                        clientIp,
-                        clientPort,
-                        "Wählen sie zunächst ein TShirt!"
-                    )
-                } else if (msg.args.isNotEmpty()) {
+                if (msg.args.isNotEmpty()) {
                     when (msg.args[0]!!.toLowerCase()) {
                         "ja" -> {
                             this.send(
@@ -80,7 +90,6 @@ class ShopServer(port: Int) : Server(port) {
                                 "Danke Für ihre Bestellung. Auf Wiedersehen!"
                             )
                             this.closeConnection(clientIp, clientPort)
-                            clients.remove(fullIp)
                         }
                         "nein" -> {
                             this.send(
@@ -88,8 +97,6 @@ class ShopServer(port: Int) : Server(port) {
                                 clientPort,
                                 "Auf Wiedersehen!"
                             )
-                            this.closeConnection(clientIp, clientPort)
-                            clients.remove(fullIp)
                         }
                     }
                 } else {
@@ -107,7 +114,6 @@ class ShopServer(port: Int) : Server(port) {
                     "Auf Wiedersehen!"
                 )
                 this.closeConnection(clientIp, clientPort)
-                clients.remove(fullIp)
             }
             else -> {
                 this.send(
@@ -119,15 +125,11 @@ class ShopServer(port: Int) : Server(port) {
         }
     }
 
-    private fun getMessageStack(fullIp: String): ArrayList<String> {
-        val messageStack: ArrayList<String>
+    private fun bestellungAufnehmen(pIPIdnr: String?, pGroesse: String?, pFarbe: String?) {
+        log("[Backend] Ein TShirt der Größe $pGroesse, mit der Farbe $pFarbe wurde für $pIPIdnr bestellt.")
+    }
 
-        if (clients.keys.contains(fullIp)) {
-            messageStack = clients[fullIp]!!
-        } else {
-            messageStack = ArrayList<String>()
-            clients[fullIp] = messageStack
-        }
-        return messageStack
+    private fun log(text: String) {
+        Launcher.instance!!.controller.log(text)
     }
 }

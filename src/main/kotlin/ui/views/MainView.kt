@@ -55,11 +55,18 @@ class MainView : View() {
                         tabMinWidth = 250.0
                         isClosable = false
                         vbox {
-                            button("Ping") {
+                           /* button("Ping") {
                                 fitToParentSize()
                                 addClass(MyStyle.tackyButton)
                                 action {
                                     sendToServer(MessageContainer("ping", listOf()))
+                                }
+                            }*/
+                            button("Lager") {
+                                fitToParentSize()
+                                addClass(MyStyle.tackyButton)
+                                action {
+                                    sendToServer(MessageContainer("lager", listOf()))
                                 }
                             }
                             button {
